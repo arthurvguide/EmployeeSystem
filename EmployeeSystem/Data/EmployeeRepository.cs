@@ -49,7 +49,32 @@ namespace EmployeeSystem.Data
                     });
             }
         }
+        public bool AddEmployee(EmployeeEntity Employee)
+        {
+            SqlCommand cmd = new SqlCommand("AddEmployee", _connection);
+            cmd.CommandType = System.Data.CommandType.StoredProcedure;
 
+
+            cmd.Parameters.AddWithValue("@FullName", Employee.FullName);
+            cmd.Parameters.AddWithValue("@JobTitle", Employee.JobTitle);
+            cmd.Parameters.AddWithValue("@Email", Employee.Email);
+            cmd.Parameters.AddWithValue("@PhoneNumber", Employee.PhoneNumber);
+            cmd.Parameters.AddWithValue("@DateOfBirth", Employee.DateOfBirth);
+
+            _connection.Open();
+
+            int i = cmd.ExecuteNonQuery();
+            _connection.Close();
+
+            if (i > 0)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
 
     }
 }
