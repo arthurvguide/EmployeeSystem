@@ -1,6 +1,55 @@
-﻿namespace EmployeeSystem.Data
+﻿using EmployeeSystem.Models;
+using System.Data;
+using System.Data.SqlClient;
+
+namespace EmployeeSystem.Data
 {
     public class EmployeeRepository
     {
+        private SqlConnection _connection;
+
+        public EmployeeRepository()
+        {
+            string coonStr = "server=LAPTOP-NTBOS8PM\\SQLEXPRESS;database=EmployeeSystem;Integrated Security=true;TrustServerCertificate=true;";
+
+            _connection = new SqlConnection(coonStr);
+        }
+
+        public List<EmployeeEntity> RetrieveAllEmployee()
+        {
+            List<EmployeeEntity> EmployeeListEntity = new List<EmployeeEntity>();
+
+            SqlCommand cmd = new SqlCommand("RetrieveAllEmployees", _connection);
+            cmd.CommandType = System.Data.CommandType.StoredProcedure;
+
+            SqlDataAdapter dataAdapter = new SqlDataAdapter(cmd);
+
+            DataTable dt = new DataTable();
+
+            dataAdapter.Fill(dt);
+
+            foreach (DataRow dr in dt.Rows)
+            {
+                AddEmployeeToList(EmployeeListEntity, dr);
+            }
+
+            return EmployeeListEntity;
+
+            static void AddEmployeeToList(List<EmployeeEntity> EmployeeListEntity, DataRow dr)
+            {
+                EmployeeListEntity.Add(
+                    new EmployeeEntity
+                    {
+                        Id = Convert.ToInt32(dr["Id"]),
+                        FullName = dr["FullName"].ToString(),
+                        JobTitle = dr["JobTitle"].ToString(),
+                        Email = dr["Email"].ToString(),
+                        PhoneNumber = dr["PhoneNumber"].ToString(),
+                        DateOfBirth = Convert.ToDateTime(dr["DateOfBirth"]),
+                    });
+            }
+        }
+
+
     }
 }
