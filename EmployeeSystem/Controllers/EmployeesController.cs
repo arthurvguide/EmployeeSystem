@@ -17,7 +17,7 @@ namespace EmployeeSystem.Controllers
 
             return View(Employee);
         }
-
+        //NEEDS IMPROVEMENT FOR ERROR HANDLING ( MESSAGES FOR END USER )
         [HttpGet]
         public ActionResult AddEmployee()
         {
@@ -58,6 +58,28 @@ namespace EmployeeSystem.Controllers
             Employee = EmployeeRepository.RetrieveEmployeeById(Id);
 
             return View("EditEmployee", Employee);
+        }
+
+        //NEEDS IMPROVEMENT FOR ERROR HANDLING ( MESSAGES FOR END USER )
+        [HttpPost]
+        public IActionResult EditEmployeeSave(int Id, EmployeeEntity EmployeeDetails)
+        {
+            try
+            {
+                if (ModelState.IsValid)
+                {
+                    EmployeeRepository _DbEmployee = new EmployeeRepository();
+                    if (_DbEmployee.EditEmployeeSave(Id, EmployeeDetails))
+                    {
+                        return RedirectToAction("Index");
+                    }
+                }
+                return View("EditEmployee", EmployeeDetails);
+            }
+            catch
+            {
+                return View("EditEmployee", EmployeeDetails);
+            }
         }
     }
 }

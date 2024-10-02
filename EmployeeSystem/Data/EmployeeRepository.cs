@@ -108,5 +108,32 @@ namespace EmployeeSystem.Data
             return EmployeeListEntity;
         }
 
+        public bool EditEmployeeSave(int Id, EmployeeEntity Employee)
+        {
+            SqlCommand cmd = new SqlCommand("EditEmployeeSave", _connection);
+            cmd.CommandType = System.Data.CommandType.StoredProcedure;
+            cmd.Parameters.AddWithValue("@Id", Id);
+
+            cmd.Parameters.AddWithValue("@FullName", Employee.FullName);
+            cmd.Parameters.AddWithValue("@JobTitle", Employee.JobTitle);
+            cmd.Parameters.AddWithValue("@Email", Employee.Email);
+            cmd.Parameters.AddWithValue("@PhoneNumber", Employee.PhoneNumber);
+            cmd.Parameters.AddWithValue("@DateOfBirth", Employee.DateOfBirth);
+
+            _connection.Open();
+
+            int i = cmd.ExecuteNonQuery();
+            _connection.Close();
+
+            if (i > 0)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
     }
 }
