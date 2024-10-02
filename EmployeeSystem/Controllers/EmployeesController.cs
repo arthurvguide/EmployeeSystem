@@ -6,6 +6,7 @@ namespace EmployeeSystem.Controllers
 {
     public class EmployeesController : Controller
     {
+        [HttpGet]
         public IActionResult Index()
         {
             List<EmployeeEntity> Employee = new List<EmployeeEntity>();
@@ -45,6 +46,18 @@ namespace EmployeeSystem.Controllers
                 //FIX FIX
                 return View();
             }
+        }
+
+        [HttpGet]
+        public IActionResult EditEmployee(int Id)
+        {
+            EmployeeEntity Employee = new EmployeeEntity();
+
+            EmployeeRepository EmployeeRepository = new EmployeeRepository();
+
+            Employee = EmployeeRepository.RetrieveEmployeeById(Id);
+
+            return View("EditEmployee", Employee);
         }
     }
 }

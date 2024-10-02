@@ -76,5 +76,37 @@ namespace EmployeeSystem.Data
             }
         }
 
+        public EmployeeEntity RetrieveEmployeeById(int Id)
+        {
+            EmployeeEntity EmployeeListEntity = new EmployeeEntity();
+
+            SqlCommand cmd = new SqlCommand("RetrieveEmployeeById", _connection);
+            cmd.CommandType = System.Data.CommandType.StoredProcedure;
+
+            SqlParameter param;
+
+            cmd.Parameters.Add(new SqlParameter("Id", Id));
+
+            SqlDataAdapter dataAdapter = new SqlDataAdapter(cmd);
+
+            DataTable dt = new DataTable();
+
+            dataAdapter.Fill(dt);
+
+            foreach (DataRow dr in dt.Rows)
+
+                EmployeeListEntity = new EmployeeEntity
+                {
+                    Id = Convert.ToInt32(dr["Id"]),
+                    FullName = dr["FullName"].ToString(),
+                    JobTitle = dr["JobTitle"].ToString(),
+                    Email = dr["Email"].ToString(),
+                    PhoneNumber = dr["PhoneNumber"].ToString(),
+                    DateOfBirth = Convert.ToDateTime(dr["DateOfBirth"]),
+                };
+
+            return EmployeeListEntity;
+        }
+
     }
 }
