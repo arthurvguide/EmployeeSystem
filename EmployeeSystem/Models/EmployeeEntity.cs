@@ -8,5 +8,11 @@
         public DateTime DateOfBirth { get; set; }
         public string PhoneNumber { get; set; }
         public string JobTitle { get; set; }
+
+        // Foreign Key reference to Department
+        public int DepartmentId { get; set; }  // Include this line
+
+        // You can also include the DepartmentEntity for convenience, if needed
+        public DepartmentEntity Department { get; set; }  // This can be used to store department details
     }
 }

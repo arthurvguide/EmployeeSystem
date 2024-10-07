@@ -33,22 +33,57 @@ namespace EmployeeSystem.Data
                 AddEmployeeToList(EmployeeListEntity, dr);
             }
 
+
             return EmployeeListEntity;
 
-            static void AddEmployeeToList(List<EmployeeEntity> EmployeeListEntity, DataRow dr)
+            void AddEmployeeToList(List<EmployeeEntity> employeeListEntity, DataRow dr)
             {
-                EmployeeListEntity.Add(
-                    new EmployeeEntity
-                    {
-                        Id = Convert.ToInt32(dr["Id"]),
-                        FullName = dr["FullName"].ToString(),
-                        JobTitle = dr["JobTitle"].ToString(),
-                        Email = dr["Email"].ToString(),
-                        PhoneNumber = dr["PhoneNumber"].ToString(),
-                        DateOfBirth = Convert.ToDateTime(dr["DateOfBirth"]),
-                    });
+                // Create a new EmployeeEntity object and populate its properties
+                var employee = new EmployeeEntity
+                {
+                    Id = Convert.ToInt32(dr["Id"]),
+                    FullName = dr["FullName"].ToString(),
+                    JobTitle = dr["JobTitle"].ToString(),
+                    Email = dr["Email"].ToString(),
+                    PhoneNumber = dr["PhoneNumber"].ToString(),
+                    DateOfBirth = Convert.ToDateTime(dr["DateOfBirth"]),
+                    DepartmentId = Convert.ToInt32(dr["Department_Id"])  // Assign DepartmentId
+                };
+
+                // Fetch the department name using the DepartmentId and assign it to the Department object
+                employee.Department = new DepartmentEntity
+                {
+                    Name = GetDepartmentNameById(employee.DepartmentId)  // Call method to get department name
+                };
+
+                // Add employee to the list
+                employeeListEntity.Add(employee);
             }
         }
+
+        public string GetDepartmentNameById(int departmentId)
+        {
+            string departmentName = string.Empty;
+
+            SqlCommand cmd = new SqlCommand("RetrieveDepartmentNameById", _connection);
+            cmd.CommandType = CommandType.StoredProcedure;
+            cmd.Parameters.AddWithValue("@DepartmentId", departmentId);
+
+            if (_connection.State != ConnectionState.Open)
+            {
+                _connection.Open();
+            }
+
+            object result = cmd.ExecuteScalar();  // ExecuteScalar returns the first value from the result set
+
+            if (result != null)
+            {
+                departmentName = result.ToString();
+            }
+
+            return departmentName;
+        }
+
         public bool AddEmployee(EmployeeEntity Employee)
         {
             SqlCommand cmd = new SqlCommand("AddEmployee", _connection);
