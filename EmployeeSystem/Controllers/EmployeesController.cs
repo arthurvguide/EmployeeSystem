@@ -67,13 +67,19 @@ namespace EmployeeSystem.Controllers
             EmployeeEntity Employee = new EmployeeEntity();
 
             EmployeeRepository EmployeeRepository = new EmployeeRepository();
+            DepartmentRepository DepartmentRepository = new DepartmentRepository(); // Retrieve departments
 
             Employee = EmployeeRepository.RetrieveEmployeeById(Id);
+
+            // Retrieve the list of departments and pass them to the ViewBag
+            var departments = DepartmentRepository.RetrieveAllDepartments();
+            ViewBag.Departments = new SelectList(departments, "Id", "Name", Employee.DepartmentId);
 
             return View("EditEmployee", Employee);
         }
 
         //NEEDS IMPROVEMENT FOR ERROR HANDLING ( MESSAGES FOR END USER )
+        //NEEDS REFACTORING BUT IT IS WORKING
         [HttpPost]
         public IActionResult EditEmployeeSave(int Id, EmployeeEntity EmployeeDetails)
         {
@@ -87,10 +93,18 @@ namespace EmployeeSystem.Controllers
                         return RedirectToAction("Index");
                     }
                 }
+                // Retrieve department list if ModelState is not valid
+                DepartmentRepository departmentRepository = new DepartmentRepository();
+                List<DepartmentEntity> departments = departmentRepository.RetrieveAllDepartments();
+                ViewBag.Departments = new SelectList(departments, "Id", "Name", EmployeeDetails.DepartmentId);
                 return View("EditEmployee", EmployeeDetails);
             }
             catch
             {
+                // Retrieve department list if ModelState is not valid
+                DepartmentRepository departmentRepository = new DepartmentRepository();
+                List<DepartmentEntity> departments = departmentRepository.RetrieveAllDepartments();
+                ViewBag.Departments = new SelectList(departments, "Id", "Name", EmployeeDetails.DepartmentId);
                 return View("EditEmployee", EmployeeDetails);
             }
         }

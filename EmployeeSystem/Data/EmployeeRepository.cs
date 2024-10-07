@@ -139,6 +139,8 @@ namespace EmployeeSystem.Data
                     Email = dr["Email"].ToString(),
                     PhoneNumber = dr["PhoneNumber"].ToString(),
                     DateOfBirth = Convert.ToDateTime(dr["DateOfBirth"]),
+                    DepartmentId = Convert.ToInt32(dr["Department_Id"])  // Assign DepartmentId
+
                 };
 
             return EmployeeListEntity;
@@ -155,6 +157,8 @@ namespace EmployeeSystem.Data
             cmd.Parameters.AddWithValue("@Email", Employee.Email);
             cmd.Parameters.AddWithValue("@PhoneNumber", Employee.PhoneNumber);
             cmd.Parameters.AddWithValue("@DateOfBirth", Employee.DateOfBirth);
+            cmd.Parameters.AddWithValue("@DepartmentId", Employee.DepartmentId);
+
 
             _connection.Open();
 
