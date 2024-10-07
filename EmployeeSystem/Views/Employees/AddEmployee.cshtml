@@ -38,7 +38,14 @@
                 <input asp-for="DateOfBirth" class="form-control" type="date" />
                 <span asp-validation-for="DateOfBirth" class="text-danger"></span>
             </div>
-            <br /
+
+            <div class="form-group">
+                <label asp-for="DepartmentId" class="control-label">Department</label>
+                <select asp-for="DepartmentId" class="form-control" asp-items="ViewBag.Departments"></select>
+                <span asp-validation-for="DepartmentId" class="text-danger"></span>
+            </div>
+
+            <br />
             <div class="form-group">
                 <input type="submit" value="Add New Employee" class="btn btn-primary" />
                 <a asp-action="Index" class="btn btn-warning">Back to List</a>

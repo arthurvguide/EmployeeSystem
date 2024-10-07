@@ -95,6 +95,7 @@ namespace EmployeeSystem.Data
             cmd.Parameters.AddWithValue("@Email", Employee.Email);
             cmd.Parameters.AddWithValue("@PhoneNumber", Employee.PhoneNumber);
             cmd.Parameters.AddWithValue("@DateOfBirth", Employee.DateOfBirth);
+            cmd.Parameters.AddWithValue("@DepartmentId", Employee.DepartmentId);
 
             _connection.Open();
 

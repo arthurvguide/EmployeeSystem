@@ -13,6 +13,7 @@
         public int DepartmentId { get; set; }  // Include this line
 
         // You can also include the DepartmentEntity for convenience, if needed
-        public DepartmentEntity Department { get; set; }  // This can be used to store department details
+        // Make Department optional by making it nullable (?)
+        public DepartmentEntity? Department { get; set; }  // This can be used to store department details
     }
 }

@@ -1,6 +1,7 @@
 ﻿using EmployeeSystem.Models;
 using EmployeeSystem.Data;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace EmployeeSystem.Controllers
 {
@@ -21,10 +22,17 @@ namespace EmployeeSystem.Controllers
         [HttpGet]
         public ActionResult AddEmployee()
         {
+            // Retrieve all departments
+            DepartmentRepository departmentRepository = new DepartmentRepository();
+            List<DepartmentEntity> departments = departmentRepository.RetrieveAllDepartments();
+
+            // Pass the department list to the view as a SelectList
+            ViewBag.Departments = new SelectList(departments, "Id", "Name");
+
             return View();
         }
 
-        
+
         [HttpPost]
         public ActionResult AddEmployee(EmployeeEntity EmployeeDetails)
         {
@@ -37,14 +45,19 @@ namespace EmployeeSystem.Controllers
                     {
                         return RedirectToAction("Index");
                     }
+
                 }
-                //FIX FIX 
-                return View();
+                // Retrieve department list again if ModelState is not valid
+                DepartmentRepository departmentRepository = new DepartmentRepository();
+                List<DepartmentEntity> departments = departmentRepository.RetrieveAllDepartments();
+                ViewBag.Departments = new SelectList(departments, "Id", "Name");
+
+                return View(EmployeeDetails);
             }
             catch
             {
                 //FIX FIX
-                return View();
+                return View(EmployeeDetails);
             }
         }
 
