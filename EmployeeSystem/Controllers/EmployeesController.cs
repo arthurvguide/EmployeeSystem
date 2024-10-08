@@ -118,6 +118,11 @@ namespace EmployeeSystem.Controllers
 
             Employee = EmployeeRepository.RetrieveEmployeeById(Id);
 
+            // Retrieve department list if ModelState is not valid
+            DepartmentRepository departmentRepository = new DepartmentRepository();
+            List<DepartmentEntity> departments = departmentRepository.RetrieveAllDepartments();
+            ViewBag.Departments = new SelectList(departments, "Id", "Name", Employee.DepartmentId);
+
             return View("DeleteEmployee", Employee);
 
         }
