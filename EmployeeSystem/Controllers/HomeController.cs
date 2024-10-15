@@ -1,9 +1,13 @@
 using EmployeeSystem.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
+using EmployeeSystem.Areas.Identity.Pages.Account.Manage;
+using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages;
+using Microsoft.AspNetCore.Authorization;
 
 namespace EmployeeSystem.Controllers
 {
+    [Authorize]
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
@@ -15,6 +19,7 @@ namespace EmployeeSystem.Controllers
 
         public IActionResult Index()
         {
+
             return View();
         }
 
