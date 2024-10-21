@@ -5,6 +5,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Data;
 using System.Linq;
 using System.Text;
 using System.Text.Encodings.Web;
@@ -24,18 +25,22 @@ namespace EmployeeSystem.Areas.Identity.Pages.Account
     {
         private readonly SignInManager<IdentityUser> _signInManager;
         private readonly UserManager<IdentityUser> _userManager;
+        private readonly RoleManager<IdentityRole> _roleManager; // Inject RoleManager
         private readonly IUserStore<IdentityUser> _userStore;
         private readonly IUserEmailStore<IdentityUser> _emailStore;
         private readonly ILogger<RegisterModel> _logger;
+        
 
         // Removed IEmailSender from the constructor
         public RegisterModel(
             UserManager<IdentityUser> userManager,
             IUserStore<IdentityUser> userStore,
             SignInManager<IdentityUser> signInManager,
+            RoleManager<IdentityRole> roleManager, // Inject RoleManager
             ILogger<RegisterModel> logger)
         {
             _userManager = userManager;
+            _roleManager = roleManager; // Set RoleManager
             _userStore = userStore;
             _emailStore = GetEmailStore();
             _signInManager = signInManager;
@@ -48,6 +53,8 @@ namespace EmployeeSystem.Areas.Identity.Pages.Account
         public string ReturnUrl { get; set; }
 
         public IList<AuthenticationScheme> ExternalLogins { get; set; }
+
+        public IList<string> Roles { get; set; } // List of roles to pass to the view
 
         public class InputModel
         {
@@ -66,12 +73,17 @@ namespace EmployeeSystem.Areas.Identity.Pages.Account
             [Display(Name = "Confirm password")]
             [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
             public string ConfirmPassword { get; set; }
+
+            [Required]
+            [Display(Name = "Role")]
+            public string Role { get; set; } // Add Role to InputModel
         }
 
         public async Task OnGetAsync(string returnUrl = null)
         {
             ReturnUrl = returnUrl;
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
+            Roles = _roleManager.Roles.Select(r => r.Name).ToList(); // Retrieve available roles from RoleManager
         }
 
         public async Task<IActionResult> OnPostAsync(string returnUrl = null)
@@ -89,6 +101,12 @@ namespace EmployeeSystem.Areas.Identity.Pages.Account
                 if (result.Succeeded)
                 {
                     _logger.LogInformation("User created a new account with password.");
+
+                    // Assign role to the user
+                    if (!string.IsNullOrEmpty(Input.Role) && await _roleManager.RoleExistsAsync(Input.Role))
+                    {
+                        await _userManager.AddToRoleAsync(user, Input.Role);
+                    }
 
                     var userId = await _userManager.GetUserIdAsync(user);
                     var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
@@ -118,7 +136,7 @@ namespace EmployeeSystem.Areas.Identity.Pages.Account
                     ModelState.AddModelError(string.Empty, error.Description);
                 }
             }
-
+            Roles = _roleManager.Roles.Select(r => r.Name).ToList(); // Retrieve roles again if registration fails
             // If we got this far, something failed, redisplay form
             return Page();
         }
