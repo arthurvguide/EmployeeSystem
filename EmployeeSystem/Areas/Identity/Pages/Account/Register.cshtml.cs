@@ -16,8 +16,10 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
+using EmployeeSystem.Data;
 
 namespace EmployeeSystem.Areas.Identity.Pages.Account
 {
@@ -29,7 +31,8 @@ namespace EmployeeSystem.Areas.Identity.Pages.Account
         private readonly IUserStore<IdentityUser> _userStore;
         private readonly IUserEmailStore<IdentityUser> _emailStore;
         private readonly ILogger<RegisterModel> _logger;
-        
+        private readonly DepartmentRepository _departmentRepository;
+
 
         // Removed IEmailSender from the constructor
         public RegisterModel(
@@ -37,7 +40,9 @@ namespace EmployeeSystem.Areas.Identity.Pages.Account
             IUserStore<IdentityUser> userStore,
             SignInManager<IdentityUser> signInManager,
             RoleManager<IdentityRole> roleManager, // Inject RoleManager
-            ILogger<RegisterModel> logger)
+            ILogger<RegisterModel> logger,
+            DepartmentRepository departmentRepository)
+
         {
             _userManager = userManager;
             _roleManager = roleManager; // Set RoleManager
@@ -45,6 +50,7 @@ namespace EmployeeSystem.Areas.Identity.Pages.Account
             _emailStore = GetEmailStore();
             _signInManager = signInManager;
             _logger = logger;
+            _departmentRepository = departmentRepository; // Assign it to the private field
         }
 
         [BindProperty]
@@ -77,13 +83,30 @@ namespace EmployeeSystem.Areas.Identity.Pages.Account
             [Required]
             [Display(Name = "Role")]
             public string Role { get; set; } // Add Role to InputModel
-        }
 
+            [Required]
+            [Display(Name = "Department")]
+            public int SelectedDepartmentId { get; set; } // Department selection
+        }
+        public IList<SelectListItem> Departments { get; set; } // List of departments for dropdown
+
+        public async Task<IList<SelectListItem>> RetrieveAllDepartments()
+        {
+            var departments = _departmentRepository.RetrieveAllDepartments(); // Use the repository to fetch departments
+            return departments.Select(d => new SelectListItem
+            {
+                Value = d.Id.ToString(),
+                Text = d.Name
+            }).ToList();
+        }
         public async Task OnGetAsync(string returnUrl = null)
         {
             ReturnUrl = returnUrl;
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
             Roles = _roleManager.Roles.Select(r => r.Name).ToList(); // Retrieve available roles from RoleManager
+
+            // Fetch departments from the database
+            Departments = await RetrieveAllDepartments();
         }
 
         public async Task<IActionResult> OnPostAsync(string returnUrl = null)
@@ -136,6 +159,7 @@ namespace EmployeeSystem.Areas.Identity.Pages.Account
                     ModelState.AddModelError(string.Empty, error.Description);
                 }
             }
+
             Roles = _roleManager.Roles.Select(r => r.Name).ToList(); // Retrieve roles again if registration fails
             // If we got this far, something failed, redisplay form
             return Page();
