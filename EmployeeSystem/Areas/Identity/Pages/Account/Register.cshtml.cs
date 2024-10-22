@@ -32,6 +32,7 @@ namespace EmployeeSystem.Areas.Identity.Pages.Account
         private readonly IUserEmailStore<IdentityUser> _emailStore;
         private readonly ILogger<RegisterModel> _logger;
         private readonly DepartmentRepository _departmentRepository;
+        private readonly UserDepartmentRepository _userDepartmentRepository;
 
 
         // Removed IEmailSender from the constructor
@@ -41,7 +42,8 @@ namespace EmployeeSystem.Areas.Identity.Pages.Account
             SignInManager<IdentityUser> signInManager,
             RoleManager<IdentityRole> roleManager, // Inject RoleManager
             ILogger<RegisterModel> logger,
-            DepartmentRepository departmentRepository)
+            DepartmentRepository departmentRepository,
+            UserDepartmentRepository userDepartmentRepository)
 
         {
             _userManager = userManager;
@@ -50,7 +52,8 @@ namespace EmployeeSystem.Areas.Identity.Pages.Account
             _emailStore = GetEmailStore();
             _signInManager = signInManager;
             _logger = logger;
-            _departmentRepository = departmentRepository; // Assign it to the private field
+            _departmentRepository = departmentRepository;
+            _userDepartmentRepository = userDepartmentRepository; // Assign it to the private field
         }
 
         [BindProperty]
@@ -111,6 +114,7 @@ namespace EmployeeSystem.Areas.Identity.Pages.Account
 
         public async Task<IActionResult> OnPostAsync(string returnUrl = null)
         {
+
             returnUrl ??= Url.Content("~/");
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
             if (ModelState.IsValid)
@@ -129,6 +133,13 @@ namespace EmployeeSystem.Areas.Identity.Pages.Account
                     if (!string.IsNullOrEmpty(Input.Role) && await _roleManager.RoleExistsAsync(Input.Role))
                     {
                         await _userManager.AddToRoleAsync(user, Input.Role);
+                    }
+
+                    // Create UserDepartment table
+                    if (Input.SelectedDepartmentId > 0)
+                    {
+                        // Call method on UserDepartmentRepository to create the table
+                         _userDepartmentRepository.AddUserDepartment(user.Id,Input.SelectedDepartmentId);
                     }
 
                     var userId = await _userManager.GetUserIdAsync(user);
@@ -159,7 +170,8 @@ namespace EmployeeSystem.Areas.Identity.Pages.Account
                     ModelState.AddModelError(string.Empty, error.Description);
                 }
             }
-
+            // Fetch departments from the database
+            Departments = await RetrieveAllDepartments();
             Roles = _roleManager.Roles.Select(r => r.Name).ToList(); // Retrieve roles again if registration fails
             // If we got this far, something failed, redisplay form
             return Page();

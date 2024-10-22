@@ -13,6 +13,7 @@ builder.Services.AddIdentity<IdentityUser, IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();
 builder.Services.AddScoped<DepartmentRepository>();
+builder.Services.AddScoped<UserDepartmentRepository>();
 
 // Configure Identity options
 builder.Services.Configure<IdentityOptions>(options =>
